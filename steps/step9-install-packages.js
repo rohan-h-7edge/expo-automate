@@ -125,6 +125,17 @@ function registerStep9(plop) {
         }
       );
       
+      // Run expo install --fix to ensure all Expo packages are compatible
+      execSync(
+        `npx expo install --fix`,
+        {
+          stdio: 'pipe',
+          cwd: projectDir,
+          encoding: 'utf8',
+          shell: '/bin/bash'
+        }
+      );
+      
       return colors.green + '  ✓ ' + colors.reset + 'Packages installed successfully';
     } catch (error) {
       console.error('\n❌ Failed to install packages:', error.message);
