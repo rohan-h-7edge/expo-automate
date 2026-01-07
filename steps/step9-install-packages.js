@@ -44,12 +44,14 @@ function registerStep9(plop) {
           };
       
       // Add Android scripts for each selected variant
+      // Note: Run 'npm run prebuild' first to regenerate native projects with correct package name
       buildVariants.forEach(variant => {
-        scripts[`android:${variant}`] = `APP_VARIANT=${variant} expo run:android --variant ${variant}`;
-        scripts[`android:${variant}:device`] = `APP_VARIANT=${variant} expo run:android --device --variant ${variant}`;
+        scripts[`android:${variant}`] = `APP_VARIANT=${variant} expo run:android`;
+        scripts[`android:${variant}:device`] = `APP_VARIANT=${variant} expo run:android --device`;
       });
       
       // Add iOS scripts for each selected variant
+      // Note: Run 'npm run prebuild' first to regenerate native projects with correct bundle identifier
       buildVariants.forEach(variant => {
         // Map variant names to iOS configuration names
         const iosConfigMap = {
@@ -64,19 +66,14 @@ function registerStep9(plop) {
       });
       
       // Add default android and ios scripts (use first variant)
+      // Note: Run 'npm run prebuild' first to regenerate native projects with correct package name
       if (buildVariants.length > 0) {
         const firstVariant = buildVariants[0];
-        scripts["android"] = `APP_VARIANT=${firstVariant} expo run:android --variant ${firstVariant}`;
-        scripts["android:device"] = `APP_VARIANT=${firstVariant} expo run:android --device --variant ${firstVariant}`;
-        const iosConfigMap = {
-          'develop': 'Debug',
-          'qa': 'Debug',
-          'preprod': 'Release',
-          'prod': 'Release'
-        };
-        const iosConfigName = iosConfigMap[firstVariant] || 'Debug';
-        scripts["ios"] = `APP_VARIANT=${firstVariant} expo run:ios --configuration ${iosConfigName}`;
-        scripts["ios:device"] = `APP_VARIANT=${firstVariant} expo run:ios --device --configuration ${iosConfigName}`;
+        scripts["android"] = `APP_VARIANT=${firstVariant} expo run:android`;
+        scripts["android:device"] = `APP_VARIANT=${firstVariant} expo run:android --device`;
+        // Default iOS scripts use Debug configuration (default)
+        scripts["ios"] = `APP_VARIANT=${firstVariant} expo run:ios`;
+        scripts["ios:device"] = `APP_VARIANT=${firstVariant} expo run:ios --device`;
       }
       
       packageJson.scripts = scripts;
