@@ -87,9 +87,10 @@ class UIManager {
       
       originalLog('\n  \x1b[1m\x1b[32mNext Steps:\x1b[0m');
       originalLog('  1. Navigate to your project: \x1b[36mcd ' + (summary.projectPath || '') + '\x1b[0m');
-      originalLog('  2. Run prebuild first: \x1b[36mnpm run prebuild\x1b[0m');
-      originalLog('  3. Start the development server: \x1b[36mnpm start\x1b[0m');
-      originalLog('  4. Build for a variant: \x1b[36mnpm run android:develop\x1b[0m or \x1b[36mnpm run ios:develop\x1b[0m');
+      originalLog('  2. Set APP_VARIANT in .env file (e.g., APP_VARIANT=develop)');
+      originalLog('  3. Run prebuild: \x1b[36mnpm run prebuild\x1b[0m');
+      originalLog('  4. Start the development server: \x1b[36mnpm start\x1b[0m');
+      originalLog('  5. Build the app: \x1b[36mnpm run build\x1b[0m (Android) or \x1b[36mnpm run build:ios\x1b[0m (iOS)');
       originalLog('');
     }
   }
