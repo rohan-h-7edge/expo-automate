@@ -9,10 +9,11 @@ const PERMISSIONS = {
 
 function getBundleIdentifier() {
   const appVariant = process.env.APP_VARIANT;
-  if (appVariant === "prod") return "com.{{projectSlug}}.app";
-  if (appVariant === "preprod") return "com.{{projectSlug}}.app.preprod";
-  if (appVariant === "qa") return "com.{{projectSlug}}.app.qa";
-  return "com.{{projectSlug}}.app.develop";
+  const baseBundleId = "{{bundleId}}";
+  if (appVariant === "prod") return baseBundleId;
+  if (appVariant === "preprod") return `${baseBundleId}.preprod`;
+  if (appVariant === "qa") return `${baseBundleId}.qa`;
+  return `${baseBundleId}.develop`;
 }
 
 function getIconPath(prefix: string) {

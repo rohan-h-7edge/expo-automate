@@ -31,53 +31,17 @@ function registerStep9(plop) {
       // Read current package.json
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
       
-      // Get build variants from answers
-      const buildVariants = answers.buildVariants || [];
-      
-          // Build scripts object with base scripts
-          const scripts = {
-            "start": "expo start --clear",
-            "prebuild": "DOTENV_CONFIG_DEBUG=false expo prebuild --npm",
-            "prebuild:clean": "DOTENV_CONFIG_DEBUG=false expo prebuild --clean --npm",
-            "web": "expo start --web",
-            "lint": "expo lint"
-          };
-      
-      // Add Android scripts for each selected variant
-      buildVariants.forEach(variant => {
-        scripts[`android:${variant}`] = `APP_VARIANT=${variant} expo run:android --variant ${variant}`;
-        scripts[`android:${variant}:device`] = `APP_VARIANT=${variant} expo run:android --device --variant ${variant}`;
-      });
-      
-      // Add iOS scripts for each selected variant
-      buildVariants.forEach(variant => {
-        // Map variant names to iOS configuration names
-        const iosConfigMap = {
-          'develop': 'Debug',
-          'qa': 'Debug',
-          'preprod': 'Release',
-          'prod': 'Release'
-        };
-        const configName = iosConfigMap[variant] || 'Debug';
-        scripts[`ios:${variant}`] = `APP_VARIANT=${variant} expo run:ios --configuration ${configName}`;
-        scripts[`ios:${variant}:device`] = `APP_VARIANT=${variant} expo run:ios --device --configuration ${configName}`;
-      });
-      
-      // Add default android and ios scripts (use first variant)
-      if (buildVariants.length > 0) {
-        const firstVariant = buildVariants[0];
-        scripts["android"] = `APP_VARIANT=${firstVariant} expo run:android --variant ${firstVariant}`;
-        scripts["android:device"] = `APP_VARIANT=${firstVariant} expo run:android --device --variant ${firstVariant}`;
-        const iosConfigMap = {
-          'develop': 'Debug',
-          'qa': 'Debug',
-          'preprod': 'Release',
-          'prod': 'Release'
-        };
-        const iosConfigName = iosConfigMap[firstVariant] || 'Debug';
-        scripts["ios"] = `APP_VARIANT=${firstVariant} expo run:ios --configuration ${iosConfigName}`;
-        scripts["ios:device"] = `APP_VARIANT=${firstVariant} expo run:ios --device --configuration ${iosConfigName}`;
-      }
+      // Build scripts object with base scripts
+      // Variant is handled via .env file (APP_VARIANT)
+      const scripts = {
+        "start": "expo start --clear",
+        "prebuild": "DOTENV_CONFIG_DEBUG=false expo prebuild --npm",
+        "prebuild:clean": "DOTENV_CONFIG_DEBUG=false expo prebuild --clean --npm",
+        "web": "expo start --web",
+        "lint": "expo lint",
+        "build": "npm run prebuild && expo run:android",
+        "build:ios": "npm run prebuild && expo run:ios"
+      };
       
       packageJson.scripts = scripts;
       
@@ -127,6 +91,25 @@ function registerStep9(plop) {
           shell: '/bin/bash'
         }
       );
+      
+      // Run expo install --fix to ensure all Expo packages are compatible
+      // Catch errors and continue since packages are already installed
+      try {
+        execSync(
+          `npx expo install --fix`,
+          {
+            stdio: 'pipe',
+            cwd: projectDir,
+            encoding: 'utf8',
+            shell: '/bin/bash'
+          }
+        );
+      } catch (fixError) {
+        // expo install --fix may fail due to version conflicts or internal errors
+        // but pa      console.error('\n❌ Failed to install packages:', error.message);
+        console.error('there is an error with the packages');
+        // The user can manually run 'npx expo install --fix' later if needed
+      }
       
       return colors.green + '  ✓ ' + colors.reset + 'Packages installed successfully';
     } catch (error) {

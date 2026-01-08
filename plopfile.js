@@ -255,6 +255,34 @@ module.exports = function (plop) {
           message: 'What is your project name?',
           default: 'Test Expo App',
         },
+        // Step 2.5: Bundle ID
+        {
+          type: 'input',
+          name: 'bundleId',
+          message: 'What is your bundle identifier? (e.g., com.company.app)',
+          default: (answers) => {
+            // Generate default from project name, but user can override
+            const slug = answers.projectName
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '')
+              .replace(/^[0-9]/, '');
+            return `com.${slug}.app`;
+          },
+          validate: (value) => {
+            if (!value || value.trim() === '') {
+              return 'Bundle identifier is required';
+            }
+            // Bundle IDs should be in reverse domain notation: com.company.app
+            if (!/^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$/.test(value)) {
+              return 'Bundle identifier must be in reverse domain notation (e.g., com.company.app). No hyphens allowed.';
+            }
+            // Check for hyphens
+            if (value.includes('-')) {
+              return 'Bundle identifier cannot contain hyphens. Use dots (.) instead.';
+            }
+            return true;
+          },
+        },
         // Step 3: Build variants
         {
           type: 'checkbox',
@@ -389,6 +417,7 @@ module.exports = function (plop) {
           data: {
             projectName: data.projectName,
             projectSlug: projectSlug,
+            bundleId: data.bundleId,
           },
         });
       });
@@ -413,6 +442,7 @@ module.exports = function (plop) {
             data: {
               projectName: data.projectName,
               projectSlug: projectSlug,
+              bundleId: data.bundleId,
             },
             force: true
           });
