@@ -8,7 +8,7 @@ const PERMISSIONS = {
 };
 
 function getBundleIdentifier() {
-  const appVariant = process.env.APP_VARIANT;
+  const appVariant = process.env.EXPO_PUBLIC_APP_VARIANT || process.env.APP_VARIANT;
   const baseBundleId = "{{bundleId}}";
   if (appVariant === "prod") return baseBundleId;
   if (appVariant === "preprod") return `${baseBundleId}.preprod`;
@@ -17,7 +17,7 @@ function getBundleIdentifier() {
 }
 
 function getIconPath(prefix: string) {
-  const appVariant = process.env.APP_VARIANT;
+  const appVariant = process.env.EXPO_PUBLIC_APP_VARIANT || process.env.APP_VARIANT;
   if (appVariant === "prod") return `./src/assets/icons/${prefix}-prod.png`;
   if (appVariant === "preprod") return `./src/assets/icons/${prefix}-preprod.png`;
   if (appVariant === "qa") return `./src/assets/icons/${prefix}-qa.png`;
