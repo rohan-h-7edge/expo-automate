@@ -474,6 +474,14 @@ module.exports = function (plop) {
             templateFile: 'templates/eslint.config.js.hbs',
             force: true
           });
+          
+          // Generate .env file with default variant
+          actions.push({
+            type: 'add',
+            path: projectDir + '/.env',
+            template: 'EXPO_PUBLIC_APP_VARIANT=develop\n',
+            force: true
+          });
       
       // Mark "Generating App Config" as complete
       actions.push({
