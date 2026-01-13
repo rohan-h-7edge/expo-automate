@@ -280,6 +280,26 @@ module.exports = function (plop) {
             if (value.includes('-')) {
               return 'Bundle identifier cannot contain hyphens. Use dots (.) instead.';
             }
+            
+            // Reserved Java keywords that cannot be used in Android package names
+            const reservedKeywords = new Set([
+              'abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char',
+              'class', 'const', 'continue', 'default', 'do', 'double', 'else', 'enum',
+              'extends', 'final', 'finally', 'float', 'for', 'goto', 'if', 'implements',
+              'import', 'instanceof', 'int', 'interface', 'long', 'native', 'new', 'package',
+              'private', 'protected', 'public', 'return', 'short', 'static', 'strictfp',
+              'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient',
+              'try', 'void', 'volatile', 'while'
+            ]);
+            
+            // Check each segment for reserved keywords
+            const segments = value.split('.');
+            for (const segment of segments) {
+              if (reservedKeywords.has(segment.toLowerCase())) {
+                return `Bundle identifier cannot contain reserved Java keywords. "${segment}" is a reserved keyword. Please use a different name.`;
+              }
+            }
+            
             return true;
           },
         },
