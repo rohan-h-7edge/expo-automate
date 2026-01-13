@@ -16,6 +16,58 @@ function getBundleIdentifier() {
   return `${baseBundleId}.develop`;
 }
 
+function getAndroidPackage() {
+  const bundleId = getBundleIdentifier();
+  
+  // Android package name validation and sanitization
+  // Rules: Only alphanumeric, '.', '_' allowed. Each '.' must be followed by a letter.
+  // Reserved Java keywords are not allowed.
+  
+  // Reserved Java keywords that cannot be used
+  const reservedKeywords = new Set([
+    'abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char',
+    'class', 'const', 'continue', 'default', 'do', 'double', 'else', 'enum',
+    'extends', 'final', 'finally', 'float', 'for', 'goto', 'if', 'implements',
+    'import', 'instanceof', 'int', 'interface', 'long', 'native', 'new', 'package',
+    'private', 'protected', 'public', 'return', 'short', 'static', 'strictfp',
+    'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient',
+    'try', 'void', 'volatile', 'while'
+  ]);
+  
+  // Split by dots and validate each segment
+  const segments = bundleId.split('.');
+  const sanitizedSegments = segments.map((segment, index) => {
+    if (!segment) {
+      throw new Error(`Invalid Android package name: empty segment at position ${index} in "${bundleId}"`);
+    }
+    
+    // Replace invalid characters with underscores
+    let sanitized = segment.replace(/[^a-zA-Z0-9_]/g, '_');
+    
+    // Ensure segment starts with a letter (required for Android package names)
+    // Each segment after a dot must start with a letter
+    if (!/^[a-zA-Z]/.test(sanitized)) {
+      sanitized = 'a' + sanitized;
+    }
+    
+    // Check for reserved Java keywords and append underscore if found
+    if (reservedKeywords.has(sanitized.toLowerCase())) {
+      sanitized = sanitized + '_';
+    }
+    
+    return sanitized;
+  });
+  
+  const sanitized = sanitizedSegments.join('.');
+  
+  // Final validation: ensure it matches Android package name pattern
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$/.test(sanitized)) {
+    throw new Error(`Invalid Android package name format: "${sanitized}" (derived from "${bundleId}")`);
+  }
+  
+  return sanitized;
+}
+
 function getIconPath(prefix: string) {
   const appVariant = process.env.EXPO_PUBLIC_APP_VARIANT;
   if (appVariant === "prod") return `./src/assets/icons/${prefix}-prod.png`;
@@ -62,7 +114,7 @@ export default {
     },
   },
   android: {
-    package: getBundleIdentifier(),
+    package: getAndroidPackage(),
     edgeToEdgeEnabled: true,
     icon: getAppIcon(),
     adaptiveIcon: {
